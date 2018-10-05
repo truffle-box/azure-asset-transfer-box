@@ -13,13 +13,15 @@ inspected and appraised, the buyer and seller will confirm the sale again before
 the contract is set to complete. At each point in the process, all participants
 have visibility into the state of the contract as it is updated. 
 
-![](media/1b35fd81aa303d9030594e43d738a625.jpg)
+![](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/media/1b35fd81aa303d9030594e43d738a625.jpg)
 
 There are four personas in this demo contract – the seller as the initiator, and
 the other three personas (buyer, appraiser, and inspector) as participants. As
 indicated in the visual above, at certain stages in the contract, there are
 various actions which participants can take. The logic written in the smart
 contract will modify the state accordingly based on which actions are taken. 
+
+<br />
 
 Application Roles 
 ------------------
@@ -30,6 +32,8 @@ Application Roles 
 | Buyer      | A person who intends to buy the asset being sold by the seller.                                     |
 | Inspector  | A person who is chosen by the buyer to be the inspector of the asset being considered for buying.   |
 | Appraiser  | A person who is chosen by the buyer to be the appraiser for the asset being considered for buying.  |
+
+<br />
 
 States 
 -------
@@ -47,10 +51,12 @@ States 
 | Accepted             | Indicates that both the buyer and the seller have agreed to the transfer of the asset under consideration.  |
 | Terminated           | Indicates owner's disapproval to continue with selling the asset under consideration.                       |
 
+<br />
+
 Workflow Details
 ----------------
 
-![](media/1a14a6336d8a8b1adfe5c3689ab954b2.png)
+![](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/media/1a14a6336d8a8b1adfe5c3689ab954b2.png)
 
 The following state transition diagram articulates the possible flows, and the
 various transition functions at each state. Each user is only allowed to take
@@ -65,4 +71,9 @@ inspector and an appraiser working for the instance buyer will
 participate. After their involvement, the buyer and the owner can choose to move
 forward and ultimately complete the transaction. 
 
- 
+ Application Files
+-----------------
+
+[AssetTransfer.json](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/AssetTransfer.json)
+
+[AssetTranfer.sol](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/contracts/AssetTransfer.sol)
