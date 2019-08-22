@@ -1,0 +1,8 @@
+{
+    "name": "azure-asset-transfer-template",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "truffle-hdwallet-provider": "1.0.10"
+    }
+}
