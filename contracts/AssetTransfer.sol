@@ -1,19 +1,6 @@
 pragma solidity ^0.5.0;
 
 contract AssetTransfer {
-    event ContractCreated(string applicationName, string workflowName, address originatingAddress);
-    event ContractUpdated(string applicationName, string workflowName, string action, address originatingAddress);
-
-    string internal ApplicationName;
-    string internal WorkflowName;
-
-    function LogContractCreated() private {
-        emit ContractCreated(ApplicationName, WorkflowName, msg.sender);
-    }
-
-    function LogContractUpdated(string memory action) private {
-        emit ContractUpdated(ApplicationName, WorkflowName, action, msg.sender);
-    }
 
     enum StateType {
         Active,
@@ -26,6 +13,20 @@ contract AssetTransfer {
         SellerAccepted,
         Accepted,
         Terminated
+    }
+
+    event ContractCreated(string applicationName, string workflowName, address originatingAddress);
+    event ContractUpdated(string applicationName, string workflowName, string action, address originatingAddress);
+
+    string internal ApplicationName;
+    string internal WorkflowName;
+
+    function LogContractCreated() private {
+        emit ContractCreated(ApplicationName, WorkflowName, msg.sender);
+    }
+
+    function LogContractUpdated(string memory action) private {
+        emit ContractUpdated(ApplicationName, WorkflowName, action, msg.sender);
     }
 
     address public InstanceOwner;
