@@ -3,13 +3,14 @@ const truffleAssert = require('truffle-assertions');
 
 contract('AssetTransfer', (accounts) => {
     let assetTransfer;
+    const zeroAddress = '0x0000000000000000000000000000000000000000';
     const owner = accounts[0];
     const buyer = accounts[1];
     const appraiser = accounts[2];
     const inspector = accounts[3];
 
-    describe('Initialization', () => {
-        beforeEach('setup for Initialization', async function() {
+    contract('Initialization', () => {
+        beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.deployed();
         });
 
@@ -21,47 +22,75 @@ contract('AssetTransfer', (accounts) => {
         });
     })
 
-    describe('MakeOffer', () => {
-        beforeEach('setup for MakeOffer', async function() {
+    contract('MakeOffer', () => {
+        beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.deployed();
         });
 
-        it('offer price should be zero', async () => {
-            await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 0, { from: buyer }));
+        contract('', () => {
+            it('offer price should be zero', async () => {
+                await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 0, { from: buyer }));
+            });
         });
 
-        it('inspector address cannot be zero', async () => {
-            await truffleAssert.reverts(assetTransfer.MakeOffer('0x0000000000000000000000000000000000000000', appraiser, 1, { from: buyer }));
+        contract('', () => {
+            it('inspector address cannot be zero', async () => {
+                await truffleAssert.reverts(assetTransfer.MakeOffer(zeroAddress, appraiser, 1, { from: buyer }));
+            });
         });
 
-        it('ownder should not make an offer', async () => {
-            await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 1, { from: owner }));
+        contract('', () => {
+            it('appraiser address cannot be zero', async () => {
+                await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, zeroAddress, 1, { from: buyer }));
+            });
         });
 
-        it('should update instance', async () => {
-            await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
-            var offerPrice = await assetTransfer.OfferPrice();
-            var state = await assetTransfer.State();
+        contract('', () => {
+            it('state should only be active', async () => {
+                // after the following transaction, the state will not be active
+                await assetTransfer.Terminate({ from: owner });
 
-            assert.equal(1, offerPrice, 'offer price was not set to proper value');
-            assert.equal(1, state, 'state was not set to OfferPlaced');
+                await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer }));
+            });
+        });
+
+        contract('', () => {
+            it('ownder should not make an offer', async () => {
+                await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 1, { from: owner }));
+            });
+        });
+
+        contract('', () => {
+            it('should update instance', async () => {
+                assetTransfer = await AssetTransfer.deployed();
+                await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
+                var offerPrice = await assetTransfer.OfferPrice();
+                var state = await assetTransfer.State();
+
+                assert.equal(1, offerPrice, 'offer price was not set to proper value');
+                assert.equal(1, state, 'state was not set to OfferPlaced');
+            });
         });
     })
 
-    describe('Terminate', () => {
-        beforeEach('setup for Terminate', async function() {
+    contract('Terminate', () => {
+        beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.deployed();
         });
 
-        it('non-owner cannot terminate', async () => {
-            await truffleAssert.reverts(assetTransfer.Terminate({ from: buyer }));
+        contract('', () => {
+            it('non-owner cannot terminate', async () => {
+                await truffleAssert.reverts(assetTransfer.Terminate({ from: buyer }));
+            });
         });
 
-        it('owner can terminate', async () => {
-            await assetTransfer.Terminate({ from: owner });
-            const state = await assetTransfer.State();
+        contract('', () => {
+            it('owner can terminate', async () => {
+                await assetTransfer.Terminate({ from: owner });
+                const state = await assetTransfer.State();
 
-            assert.equal(9, state);
+                assert.equal(9, state);
+            });
         });
     });
 });
