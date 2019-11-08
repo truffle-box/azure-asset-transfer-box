@@ -9,7 +9,7 @@ contract('AssetTransfer', (accounts) => {
     const appraiser = accounts[2];
     const inspector = accounts[3];
 
-    contract('constructor', () => {
+    describe('constructor', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
@@ -22,7 +22,7 @@ contract('AssetTransfer', (accounts) => {
         });
     })
 
-    contract('MakeOffer', () => {
+    describe('MakeOffer', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
@@ -64,7 +64,7 @@ contract('AssetTransfer', (accounts) => {
         });
     })
 
-    contract('Terminate', () => {
+    describe('Terminate', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
@@ -84,7 +84,7 @@ contract('AssetTransfer', (accounts) => {
         });
     });
 
-    contract('Modify', () => {
+    describe('Modify', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
@@ -111,7 +111,7 @@ contract('AssetTransfer', (accounts) => {
         });
     });
 
-    contract('ModifyOffer', () => {
+    describe('ModifyOffer', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
@@ -143,7 +143,7 @@ contract('AssetTransfer', (accounts) => {
         });
     });
 
-    contract('AcceptOffer', () => {
+    describe('AcceptOffer', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
@@ -171,7 +171,7 @@ contract('AssetTransfer', (accounts) => {
         });
     });
 
-    contract('MarkAppraised', () => {
+    describe('MarkAppraised', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
@@ -210,7 +210,7 @@ contract('AssetTransfer', (accounts) => {
         });
     });
 
-    contract('MarkInspected', () => {
+    describe('MarkInspected', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
@@ -249,7 +249,7 @@ contract('AssetTransfer', (accounts) => {
         });
     });
 
-    contract('Reject', () => {
+    describe('Reject', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
@@ -276,7 +276,7 @@ contract('AssetTransfer', (accounts) => {
         })
     });
 
-    contract('RescindOffer', () => {
+    describe('RescindOffer', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
@@ -307,7 +307,7 @@ contract('AssetTransfer', (accounts) => {
         });
     })
 
-    contract('Accept', () => {
+    describe('Accept', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
