@@ -11,10 +11,10 @@ contract('AssetTransfer', (accounts) => {
 
     contract('constructor', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
 
-        runTest('should return a new instance of the contract', async () => {
+        it('should return a new instance of the contract', async () => {
             var description = await assetTransfer.Description();
             var price = await assetTransfer.AskingPrice();
             assert.equal(description, 'testdescription', 'Default description not set to proper value.');
@@ -24,33 +24,33 @@ contract('AssetTransfer', (accounts) => {
 
     contract('MakeOffer', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
 
-        runTest('offer price should be zero', async () => {
+        it('offer price should be zero', async () => {
             await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 0, { from: buyer }));
         });
 
-        runTest('inspector address cannot be zero', async () => {
+        it('inspector address cannot be zero', async () => {
             await truffleAssert.reverts(assetTransfer.MakeOffer(zeroAddress, appraiser, 1, { from: buyer }));
         });
 
-        runTest('appraiser address cannot be zero', async () => {
+        it('appraiser address cannot be zero', async () => {
             await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, zeroAddress, 1, { from: buyer }));
         });
 
-        runTest('state should only be active', async () => {
+        it('state should only be active', async () => {
             // after the following transaction, the state will not be active
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer }));
         });
 
-        runTest('ownder should not make an offer', async () => {
+        it('ownder should not make an offer', async () => {
             await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 1, { from: owner }));
         });
 
-        runTest('should update contract', async () => {
+        it('should update contract', async () => {
             assetTransfer = await AssetTransfer.deployed();
             var result = await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
             var offerPrice = await assetTransfer.OfferPrice();
@@ -66,14 +66,14 @@ contract('AssetTransfer', (accounts) => {
 
     contract('Terminate', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
 
-        runTest('non-owner cannot terminate', async () => {
+        it('non-owner cannot terminate', async () => {
             await truffleAssert.reverts(assetTransfer.Terminate({ from: buyer }));
         });
 
-        runTest('owner can terminate', async () => {
+        it('owner can terminate', async () => {
             var result = await assetTransfer.Terminate({ from: owner });
             var state = await assetTransfer.State();
 
@@ -86,21 +86,21 @@ contract('AssetTransfer', (accounts) => {
 
     contract('Modify', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
 
-        runTest('state should only be active', async () => {
+        it('state should only be active', async () => {
             // after the following transaction, the state will not be active
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.Modify('owner updates the price', 2, { from: owner }));
         });
 
-        runTest('only owner can modify', async () => {
+        it('only owner can modify', async () => {
             await truffleAssert.reverts(assetTransfer.Modify('buyer tries to update the price', 2, { from: buyer }));
         });
 
-        runTest('should modify contract', async () => {
+        it('should modify contract', async () => {
             var result = await assetTransfer.Modify('owner updates the price', 2, { from: owner });
             var state = await assetTransfer.State();
 
@@ -113,26 +113,26 @@ contract('AssetTransfer', (accounts) => {
 
     contract('ModifyOffer', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
         });
 
-        runTest('state should only be offerplaced', async () => {
+        it('state should only be offerplaced', async () => {
             // after the following transaction, the state will not be offerplaced
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.ModifyOffer(2, { from: buyer }));
         });
 
-        runTest('only buyer can modify offer', async () => {
+        it('only buyer can modify offer', async () => {
             await truffleAssert.reverts(assetTransfer.ModifyOffer(2, { from: owner }));
         });
 
-        runTest('offer price cannot be zero', async () => {
+        it('offer price cannot be zero', async () => {
             await truffleAssert.reverts(assetTransfer.ModifyOffer(0, { from: buyer }));
         });
 
-        runTest('should modify offer', async () => {
+        it('should modify offer', async () => {
             var result = await assetTransfer.ModifyOffer(2, { from: buyer });
             var state = await assetTransfer.State();
 
@@ -145,22 +145,22 @@ contract('AssetTransfer', (accounts) => {
 
     contract('AcceptOffer', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
         });
 
-        runTest('state should only be offer placed', async () => {
+        it('state should only be offer placed', async () => {
             // after the following transaction, the state will not be offerplaced
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.AcceptOffer({ from: owner }));
         });
 
-        runTest('only owner can accept offer', async () => {
+        it('only owner can accept offer', async () => {
             await truffleAssert.reverts(assetTransfer.AcceptOffer({ from: buyer }));
         });
 
-        runTest('should update contract', async () => {
+        it('should update contract', async () => {
             var result = await assetTransfer.AcceptOffer({ from: owner });
             var state = await assetTransfer.State();
 
@@ -173,22 +173,22 @@ contract('AssetTransfer', (accounts) => {
 
     contract('MarkAppraised', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
             await assetTransfer.AcceptOffer({ from: owner });
         });
 
-        runTest('only appraiser can mark appraised', async () => {
+        it('only appraiser can mark appraised', async () => {
             await truffleAssert.reverts(assetTransfer.MarkAppraised({ from: owner }));
         });
 
-        runTest('state can only be pending inspection or inspected', async () => {
+        it('state can only be pending inspection or inspected', async () => {
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.MarkAppraised({ from: appraiser }));
         });
 
-        runTest('should update contract if state is pending inspection', async () => {
+        it('should update contract if state is pending inspection', async () => {
             var result = await assetTransfer.MarkAppraised({ from: appraiser });
             var state = await assetTransfer.State();
 
@@ -198,7 +198,7 @@ contract('AssetTransfer', (accounts) => {
             }, 'Contract should return the correct message');
         });
 
-        runTest('should update contract if state is inspected', async () => {
+        it('should update contract if state is inspected', async () => {
             await assetTransfer.MarkInspected({ from: inspector });
             var result = await assetTransfer.MarkAppraised({ from: appraiser });
             var state = await assetTransfer.State();
@@ -212,22 +212,22 @@ contract('AssetTransfer', (accounts) => {
 
     contract('MarkInspected', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
             await assetTransfer.AcceptOffer({ from: owner });
         });
 
-        runTest('only inspector can mark inspected', async () => {
+        it('only inspector can mark inspected', async () => {
             await truffleAssert.reverts(assetTransfer.MarkInspected({ from: owner }));
         })
 
-        runTest('state can only be either pending inspection or appraised', async () => {
+        it('state can only be either pending inspection or appraised', async () => {
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.MarkInspected({ from: inspector }));
         });
 
-        runTest('should update instance if state is pending inspection', async () => {
+        it('should update instance if state is pending inspection', async () => {
             var result = await assetTransfer.MarkInspected({ from: inspector });
             var state = await assetTransfer.State();
 
@@ -237,7 +237,7 @@ contract('AssetTransfer', (accounts) => {
             }, 'Contract should return the correct message');
         });
 
-        runTest('should update instance if state is appraised', async () => {
+        it('should update instance if state is appraised', async () => {
             await assetTransfer.MarkAppraised({ from: appraiser });
             var result = await assetTransfer.MarkInspected({ from: inspector });
             var state = await assetTransfer.State();
@@ -251,21 +251,21 @@ contract('AssetTransfer', (accounts) => {
 
     contract('Reject', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
         });
 
-        runTest('state cannot be anything', async () => {
+        it('state cannot be anything', async () => {
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.Reject({ from: owner }));
         });
 
-        runTest('only owner can reject', async () => {
+        it('only owner can reject', async () => {
             await truffleAssert.reverts(assetTransfer.Reject({ from: buyer }));
         });
 
-        runTest('should update instace', async () => {
+        it('should update instace', async () => {
             var result = await assetTransfer.Reject({ from: owner });
             var state = await assetTransfer.State();
 
@@ -278,21 +278,21 @@ contract('AssetTransfer', (accounts) => {
 
     contract('RescindOffer', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
         });
 
-        runTest('state cannot be anything', async () => {
+        it('state cannot be anything', async () => {
             await assetTransfer.Terminate({ from: owner });
 
             await truffleAssert.reverts(assetTransfer.RescindOffer({ from: buyer }));
         });
 
-        runTest('only buyer can rescind offer', async () => {
+        it('only buyer can rescind offer', async () => {
             await truffleAssert.reverts(assetTransfer.RescindOffer({ from: owner }));
         });
 
-        runTest('should update instance', async () => {
+        it('should update instance', async () => {
             var result = await assetTransfer.RescindOffer({ from: buyer });
             var instanceBuyer = await assetTransfer.InstanceBuyer();
             var offerPrice = await assetTransfer.OfferPrice();
@@ -309,18 +309,18 @@ contract('AssetTransfer', (accounts) => {
 
     contract('Accept', () => {
         beforeEach('setup', async function() {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
             await assetTransfer.AcceptOffer({ from: owner });
             await assetTransfer.MarkInspected({ from: inspector });
             await assetTransfer.MarkAppraised({ from: appraiser });
         });
 
-        runTest('only owner or buyer can accept', async () => {
+        it('only owner or buyer can accept', async () => {
             await truffleAssert.reverts(assetTransfer.Accept({ from: inspector }));
         });
 
-        runTest('owner can only accept at two states', async () => {
+        it('owner can only accept at two states', async () => {
             await assetTransfer.Accept({ from: owner });
             await assetTransfer.Accept({ from: buyer });
 
@@ -328,7 +328,7 @@ contract('AssetTransfer', (accounts) => {
             await truffleAssert.reverts(assetTransfer.Accept({ from: owner }));
         });
 
-        runTest('buyer can only accept at two states', async () => {
+        it('buyer can only accept at two states', async () => {
             await assetTransfer.Accept({ from: owner });
             await assetTransfer.Accept({ from: buyer });
 
@@ -336,7 +336,7 @@ contract('AssetTransfer', (accounts) => {
             await truffleAssert.reverts(assetTransfer.Accept({ from: buyer }));
         });
 
-        runTest('should update instance after buyer accepts at NotionalAcceptance', async () => {
+        it('should update instance after buyer accepts at NotionalAcceptance', async () => {
             var result = await assetTransfer.Accept({ from: buyer });
             var state = await assetTransfer.State();
 
@@ -346,7 +346,7 @@ contract('AssetTransfer', (accounts) => {
             }, 'Contract should return the correct message');
         });
 
-        runTest('should update instance after owner accepts at NotionalAcceptance', async () => {
+        it('should update instance after owner accepts at NotionalAcceptance', async () => {
             var result = await assetTransfer.Accept({ from: owner });
             var state = await assetTransfer.State();
 
@@ -356,7 +356,7 @@ contract('AssetTransfer', (accounts) => {
             }, 'Contract should return the correct message');
         });
 
-        runTest('should update instance after buyer accepts at SellerAccepted', async () => {
+        it('should update instance after buyer accepts at SellerAccepted', async () => {
             await assetTransfer.Accept({ from: owner });
 
             var result = await assetTransfer.Accept({ from: buyer });
@@ -368,7 +368,7 @@ contract('AssetTransfer', (accounts) => {
             }, 'Contract should return the correct message');
         });
 
-        runTest('should update instance after owner accepts at BuyerAccepted', async () => {
+        it('should update instance after owner accepts at BuyerAccepted', async () => {
             await assetTransfer.Accept({ from: buyer });
 
             var result = await assetTransfer.Accept({ from: owner });
@@ -381,20 +381,3 @@ contract('AssetTransfer', (accounts) => {
         });
     });
 });
-
-/**
- * Run test with new deployed contract.
- *
- * Note: Truffle only redeploys contract before each contract() function is run, but not it() function. It is important to
- * create clean room for each test case. The helper wraps up common code.
- * https://www.trufflesuite.com/docs/truffle/testing/writing-tests-in-javascript
- * @param {string} description
- *   Test description
- * @param {function} callback
- *   Test body
- */
-function runTest(description, callback) {
-    contract('', () => {
-        it(description, callback);
-    });
-}
