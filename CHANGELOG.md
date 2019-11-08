@@ -13,7 +13,7 @@
 * Resize media picture so that words are not distorted
 
 <a name="0.1.0"></a>
-# 0.1.0 (2019-22-04)
+# 0.1.0 (2019-08-04)
 
 *Features*
 * Basic functionality
