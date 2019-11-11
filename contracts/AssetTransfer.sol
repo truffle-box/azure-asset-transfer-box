@@ -18,16 +18,8 @@ contract AssetTransfer {
     event ContractCreated(string applicationName, string workflowName, address originatingAddress);
     event ContractUpdated(string applicationName, string workflowName, string action, address originatingAddress);
 
-    string internal ApplicationName;
-    string internal WorkflowName;
-
-    function LogContractCreated() private {
-        emit ContractCreated(ApplicationName, WorkflowName, msg.sender);
-    }
-
-    function LogContractUpdated(string memory action) private {
-        emit ContractUpdated(ApplicationName, WorkflowName, action, msg.sender);
-    }
+    string internal ApplicationName = "AssetTransfer";
+    string internal WorkflowName = "AssetTransfer";
 
     address public InstanceOwner;
     string public Description;
@@ -40,13 +32,12 @@ contract AssetTransfer {
     address public InstanceAppraiser;
 
     constructor (string memory description, uint256 price) public {
-        ApplicationName = "AssetTransfer";
-        WorkflowName = "AssetTransfer";
         InstanceOwner = msg.sender;
         AskingPrice = price;
         Description = description;
         State = StateType.Active;
-        LogContractCreated();
+
+        emit ContractCreated(ApplicationName, WorkflowName, msg.sender);
     }
 
     function Terminate() public {
@@ -55,7 +46,8 @@ contract AssetTransfer {
         }
 
         State = StateType.Terminated;
-        LogContractUpdated('Terminate');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "Terminate", msg.sender);
     }
 
     function Modify(string calldata description, uint256 price) external {
@@ -69,12 +61,17 @@ contract AssetTransfer {
 
         Description = description;
         AskingPrice = price;
-        LogContractUpdated('Modify');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "Modify", msg.sender);
     }
 
     function MakeOffer(address inspector, address appraiser, uint256 offerPrice) external {
-        if (inspector == address(0x000) || appraiser == address(0x000) || offerPrice == 0) {
-            revert("MakeOffer function need to have a valid inspector/appraiser address and an offerPrice > 0");
+        if (inspector == address(0x000) || appraiser == address(0x000)) {
+            revert("MakeOffer function need to have a valid inspector/appraiser address");
+        }
+
+        if (offerPrice == 0) {
+            revert("MakeOffer function need to have an offerPrice > 0");
         }
 
         if (State != StateType.Active) {
@@ -90,12 +87,13 @@ contract AssetTransfer {
         InstanceAppraiser = appraiser;
         OfferPrice = offerPrice;
         State = StateType.OfferPlaced;
-        LogContractUpdated('MakeOffer');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "MakeOffer", msg.sender);
     }
 
     function AcceptOffer() external {
         if (State != StateType.OfferPlaced) {
-            revert("AcceptOffer function can only be called when an Offer has already been placed.");
+            revert("AcceptOffer function can only be called when an offer placed.");
         }
 
         if (InstanceOwner != msg.sender) {
@@ -103,7 +101,8 @@ contract AssetTransfer {
         }
 
         State = StateType.PendingInspection;
-        LogContractUpdated("AcceptOffer");
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "AcceptOffer", msg.sender);
     }
 
     function Reject() external {
@@ -119,7 +118,8 @@ contract AssetTransfer {
 
         InstanceBuyer = address(0x000);
         State = StateType.Active;
-        LogContractUpdated("Reject");
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "Reject", msg.sender);
     }
 
     function Accept() external {
@@ -150,7 +150,7 @@ contract AssetTransfer {
             }
         }
 
-        LogContractUpdated("Accept");
+        emit ContractUpdated(ApplicationName, WorkflowName, "Accept", msg.sender);
     }
 
     function ModifyOffer(uint256 offerPrice) external {
@@ -163,7 +163,8 @@ contract AssetTransfer {
         }
 
         OfferPrice = offerPrice;
-        LogContractUpdated("ModifyOffer");
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "ModifyOffer", msg.sender);
     }
 
     function RescindOffer() external {
@@ -180,7 +181,8 @@ contract AssetTransfer {
         InstanceBuyer = address(0x000);
         OfferPrice = 0;
         State = StateType.Active;
-        LogContractUpdated("RescindOffer");
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "RescindOffer", msg.sender);
     }
 
     function MarkAppraised() external {
@@ -196,7 +198,7 @@ contract AssetTransfer {
             revert("MarkAppraised function was not PendingInspection or Inspection");
         }
 
-        LogContractUpdated("MarkAppraised");
+        emit ContractUpdated(ApplicationName, WorkflowName, "MarkAppraised", msg.sender);
     }
 
     function MarkInspected() external {
@@ -212,6 +214,6 @@ contract AssetTransfer {
             revert("MarkInspected function can only be called if PendingInspected or Appraised");
         }
 
-        LogContractUpdated("MarkInspected");
+        emit ContractUpdated(ApplicationName, WorkflowName, "MarkInspected", msg.sender);
     }
 }

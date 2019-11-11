@@ -9,7 +9,7 @@ contract('AssetTransfer', (accounts) => {
     const appraiser = accounts[2];
     const inspector = accounts[3];
 
-    describe('constructor', () => {
+    describe('Constructor', () => {
         beforeEach('setup', async function() {
             assetTransfer = await AssetTransfer.new('testdescription', 1);
         });
@@ -46,7 +46,7 @@ contract('AssetTransfer', (accounts) => {
             await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer }));
         });
 
-        it('ownder should not make an offer', async () => {
+        it('owner should not make an offer', async () => {
             await truffleAssert.reverts(assetTransfer.MakeOffer(inspector, appraiser, 1, { from: owner }));
         });
 
