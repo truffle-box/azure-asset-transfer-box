@@ -51,7 +51,7 @@ contract('AssetTransfer', (accounts) => {
         });
 
         it('should update contract', async () => {
-            assetTransfer = await AssetTransfer.deployed();
+            assetTransfer = await AssetTransfer.new('testdescription', 1);
             var result = await assetTransfer.MakeOffer(inspector, appraiser, 1, { from: buyer });
             var offerPrice = await assetTransfer.OfferPrice();
             var state = await assetTransfer.State();
