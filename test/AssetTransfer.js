@@ -59,7 +59,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(1, state, 'state was not set to OfferPlaced');
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'MakeOffer';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     })
 
@@ -79,7 +79,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(9, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'Terminate';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     });
 
@@ -106,7 +106,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(0, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'Modify';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     });
 
@@ -138,7 +138,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(1, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'ModifyOffer';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     });
 
@@ -166,7 +166,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(2, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'AcceptOffer';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     });
 
@@ -205,7 +205,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(5, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'MarkAppraised';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     });
 
@@ -244,7 +244,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(5, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'MarkInspected';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     });
 
@@ -271,7 +271,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(0, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'Reject';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         })
     });
 
@@ -302,7 +302,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(0, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'RescindOffer';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     })
 
@@ -376,7 +376,7 @@ contract('AssetTransfer', (accounts) => {
             assert.equal(8, state);
             truffleAssert.eventEmitted(result, 'ContractUpdated', (ev) => {
                 return ev.action == 'Accept';
-            }, 'Contract should return the correct message');
+            }, 'Contract should emit the correct message');
         });
     });
 });
