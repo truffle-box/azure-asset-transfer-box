@@ -74,6 +74,4 @@ forward and ultimately complete the transaction.
 Application Files
 -----------------
 
-[AssetTransfer.json](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/AssetTransfer.json)
-
-[AssetTranfer.sol](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/contracts/AssetTransfer.sol)
+[AssetTranfer.sol](https://raw.githubusercontent.com/truffle-box/azure-asset-transfer-box/master/contracts/AssetTransfer.sol)
