@@ -1,29 +1,26 @@
-pragma solidity ^0.4.20;
+pragma solidity ^0.5.0;
 
-contract WorkbenchBase {
-    event WorkbenchContractCreated(string applicationName, string workflowName, address originatingAddress);
-    event WorkbenchContractUpdated(string applicationName, string workflowName, string action, address originatingAddress);
+contract AssetTransfer {
 
-    string internal ApplicationName;
-    string internal WorkflowName;
-
-    function WorkbenchBase(string applicationName, string workflowName) internal {
-        ApplicationName = applicationName;
-        WorkflowName = workflowName;
+    enum StateType {
+        Active,
+        OfferPlaced,
+        PendingInspection,
+        Inspected,
+        Appraised,
+        NotionalAcceptance,
+        BuyerAccepted,
+        SellerAccepted,
+        Accepted,
+        Terminated
     }
 
-    function ContractCreated() internal {
-        WorkbenchContractCreated(ApplicationName, WorkflowName, msg.sender);
-    }
+    event ContractCreated(string applicationName, string workflowName, address originatingAddress);
+    event ContractUpdated(string applicationName, string workflowName, string action, address originatingAddress);
 
-    function ContractUpdated(string action) internal {
-        WorkbenchContractUpdated(ApplicationName, WorkflowName, action, msg.sender);
-    }
-}
+    string internal ApplicationName = "AssetTransfer";
+    string internal WorkflowName = "AssetTransfer";
 
-contract AssetTransfer is WorkbenchBase('AssetTransfer', 'AssetTransfer')
-{
-    enum StateType { Active, OfferPlaced, PendingInspection, Inspected, Appraised, NotionalAcceptance, BuyerAccepted, SellerAccepted, Accepted, Terminated }
     address public InstanceOwner;
     string public Description;
     uint public AskingPrice;
@@ -34,56 +31,55 @@ contract AssetTransfer is WorkbenchBase('AssetTransfer', 'AssetTransfer')
     address public InstanceInspector;
     address public InstanceAppraiser;
 
-    function AssetTransfer(string description, uint256 price) public
-    {
+    constructor (string memory description, uint256 price) public {
         InstanceOwner = msg.sender;
         AskingPrice = price;
         Description = description;
         State = StateType.Active;
-        ContractCreated();
+
+        emit ContractCreated(ApplicationName, WorkflowName, msg.sender);
     }
 
-    function Terminate() public
-    {
-        if (InstanceOwner != msg.sender)
-        {
-            revert();
+    function Terminate() public {
+        if (InstanceOwner != msg.sender) {
+            revert("The contract can only be terminated by the owner");
         }
 
         State = StateType.Terminated;
-        ContractUpdated('Terminate');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "Terminate", msg.sender);
     }
 
-    function Modify(string description, uint256 price) public
-    {
-        if (State != StateType.Active)
-        {
-            revert();
+    function Modify(string calldata description, uint256 price) external {
+        if (State != StateType.Active) {
+            revert("Modify function can only be called when in Active state");
         }
-        if (InstanceOwner != msg.sender)
-        {
-            revert();
+
+        if (InstanceOwner != msg.sender) {
+            revert("Modify function can only be called by the owner");
         }
 
         Description = description;
         AskingPrice = price;
-        ContractUpdated('Modify');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "Modify", msg.sender);
     }
 
-    function MakeOffer(address inspector, address appraiser, uint256 offerPrice) public
-    {
-        if (inspector == 0x0 || appraiser == 0x0 || offerPrice == 0)
-        {
-            revert();
+    function MakeOffer(address inspector, address appraiser, uint256 offerPrice) external {
+        if (inspector == address(0x000) || appraiser == address(0x000)) {
+            revert("MakeOffer function need to have a valid inspector/appraiser address");
         }
-        if (State != StateType.Active)
-        {
-            revert();
+
+        if (offerPrice == 0) {
+            revert("MakeOffer function need to have an offerPrice > 0");
         }
-        // Cannot enforce "AllowedRoles":["Buyer"] because Role information is unavailable
-        if (InstanceOwner == msg.sender) // not expressible in the current specification language
-        {
-            revert();
+
+        if (State != StateType.Active) {
+            revert("MakeOffer function can only be called when in Active state");
+        }
+
+        if (InstanceOwner == msg.sender) {
+            revert("MakeOffer function cannot be called by the owner");
         }
 
         InstanceBuyer = msg.sender;
@@ -91,159 +87,133 @@ contract AssetTransfer is WorkbenchBase('AssetTransfer', 'AssetTransfer')
         InstanceAppraiser = appraiser;
         OfferPrice = offerPrice;
         State = StateType.OfferPlaced;
-        ContractUpdated('MakeOffer');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "MakeOffer", msg.sender);
     }
 
-    function AcceptOffer() public
-    {
-        if (State != StateType.OfferPlaced)
-        {
-            revert();
+    function AcceptOffer() external {
+        if (State != StateType.OfferPlaced) {
+            revert("AcceptOffer function can only be called when an offer placed.");
         }
-        if (InstanceOwner != msg.sender)
-        {
-            revert();
+
+        if (InstanceOwner != msg.sender) {
+            revert("AcceptOffer function can only be called by the owner");
         }
 
         State = StateType.PendingInspection;
-        ContractUpdated('AcceptOffer');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "AcceptOffer", msg.sender);
     }
 
-    function Reject() public
-    {
-        if (State != StateType.OfferPlaced && State != StateType.PendingInspection && State != StateType.Inspected && State != StateType.Appraised && State != StateType.NotionalAcceptance && State != StateType.BuyerAccepted)
-        {
-            revert();
-        }
-        if (InstanceOwner != msg.sender)
-        {
-            revert();
+    function Reject() external {
+        if (State != StateType.OfferPlaced && State != StateType.PendingInspection &&
+            State != StateType.Inspected && State != StateType.Appraised &&
+            State != StateType.NotionalAcceptance && State != StateType.BuyerAccepted) {
+            revert("Current state does not allow the Reject function to be called");
         }
 
-        InstanceBuyer = 0x0;
+        if (InstanceOwner != msg.sender) {
+            revert("Reject function can only be called by the owner");
+        }
+
+        InstanceBuyer = address(0x000);
         State = StateType.Active;
-        ContractUpdated('Reject');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "Reject", msg.sender);
     }
 
-    function Accept() public
-    {
-        if (msg.sender != InstanceBuyer && msg.sender != InstanceOwner)
-        {
-            revert();
+    function Accept() external {
+        if (msg.sender != InstanceBuyer && msg.sender != InstanceOwner) {
+            revert("Accept function can only be called by the Buyer or the Owner");
         }
 
-        if (msg.sender == InstanceOwner &&
-            State != StateType.NotionalAcceptance &&
-            State != StateType.BuyerAccepted)
-        {
-            revert();
+        if (msg.sender == InstanceOwner && State != StateType.NotionalAcceptance && State != StateType.BuyerAccepted) {
+            revert("Accept function can only be called by the Owner and no acceptance");
         }
 
-        if (msg.sender == InstanceBuyer &&
-            State != StateType.NotionalAcceptance &&
-            State != StateType.SellerAccepted)
-        {
-            revert();
+        if (msg.sender == InstanceBuyer && State != StateType.NotionalAcceptance && State != StateType.SellerAccepted) {
+            revert("Accept function can only be called by Buyer and no acceptance");
         }
 
-        if (msg.sender == InstanceBuyer)
-        {
-            if (State == StateType.NotionalAcceptance)
-            {
+        if (msg.sender == InstanceBuyer) {
+            if (State == StateType.NotionalAcceptance) {
                 State = StateType.BuyerAccepted;
             }
-            else if (State == StateType.SellerAccepted)
-            {
+            else if (State == StateType.SellerAccepted) {
                 State = StateType.Accepted;
             }
-        }
-        else
-        {
-            if (State == StateType.NotionalAcceptance)
-            {
+        } else {
+            if (State == StateType.NotionalAcceptance) {
                 State = StateType.SellerAccepted;
-            }
-            else if (State == StateType.BuyerAccepted)
-            {
+            } else if (State == StateType.BuyerAccepted) {
                 State = StateType.Accepted;
             }
         }
-        ContractUpdated('Accept');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "Accept", msg.sender);
     }
 
-    function ModifyOffer(uint256 offerPrice) public
-    {
-        if (State != StateType.OfferPlaced)
-        {
-            revert();
+    function ModifyOffer(uint256 offerPrice) external {
+        if (State != StateType.OfferPlaced) {
+            revert("ModifyOffer function cannot be called if an offer has been placed.");
         }
-        if (InstanceBuyer != msg.sender || offerPrice == 0)
-        {
-            revert();
+
+        if (InstanceBuyer != msg.sender || offerPrice == 0) {
+            revert("ModifyOffer can only be called by Buyer with an offerPrice > 0");
         }
 
         OfferPrice = offerPrice;
-        ContractUpdated('ModifyOffer');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "ModifyOffer", msg.sender);
     }
 
-    function RescindOffer() public
-    {
-        if (State != StateType.OfferPlaced && State != StateType.PendingInspection && State != StateType.Inspected && State != StateType.Appraised && State != StateType.NotionalAcceptance && State != StateType.SellerAccepted)
-        {
-            revert();
-        }
-        if (InstanceBuyer != msg.sender)
-        {
-            revert();
+    function RescindOffer() external {
+        if (State != StateType.OfferPlaced && State != StateType.PendingInspection &&
+            State != StateType.Inspected && State != StateType.Appraised &&
+            State != StateType.NotionalAcceptance && State != StateType.SellerAccepted) {
+            revert("RescindOffer function criteria was not met");
         }
 
-        InstanceBuyer = 0x0;
+        if (InstanceBuyer != msg.sender) {
+            revert("RescindOffer function can only be called by the Buyer");
+        }
+
+        InstanceBuyer = address(0x000);
         OfferPrice = 0;
         State = StateType.Active;
-        ContractUpdated('RescindOffer');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "RescindOffer", msg.sender);
     }
 
-    function MarkAppraised() public
-    {
-        if (InstanceAppraiser != msg.sender)
-        {
-            revert();
+    function MarkAppraised() external {
+        if (InstanceAppraiser != msg.sender) {
+            revert("MarkAppraised function can only be called by the Appraiser");
         }
 
-        if (State == StateType.PendingInspection)
-        {
+        if (State == StateType.PendingInspection) {
             State = StateType.Appraised;
-        }
-        else if (State == StateType.Inspected)
-        {
+        } else if (State == StateType.Inspected) {
             State = StateType.NotionalAcceptance;
+        } else {
+            revert("MarkAppraised function was not PendingInspection or Inspection");
         }
-        else
-        {
-            revert();
-        }
-        ContractUpdated('MarkAppraised');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "MarkAppraised", msg.sender);
     }
 
-    function MarkInspected() public
-    {
-        if (InstanceInspector != msg.sender)
-        {
-            revert();
+    function MarkInspected() external {
+        if (InstanceInspector != msg.sender) {
+            revert("MarkInspected function cannot be called by the Inspector");
         }
 
-        if (State == StateType.PendingInspection)
-        {
+        if (State == StateType.PendingInspection) {
             State = StateType.Inspected;
-        }
-        else if (State == StateType.Appraised)
-        {
+        } else if (State == StateType.Appraised) {
             State = StateType.NotionalAcceptance;
+        } else {
+            revert("MarkInspected function can only be called if PendingInspected or Appraised");
         }
-        else
-        {
-            revert();
-        }
-        ContractUpdated('MarkInspected');
+
+        emit ContractUpdated(ApplicationName, WorkflowName, "MarkInspected", msg.sender);
     }
 }

@@ -56,7 +56,7 @@ States
 Workflow Details
 ----------------
 
-![](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/media/1a14a6336d8a8b1adfe5c3689ab954b2.png)
+![](https://raw.githubusercontent.com/truffle-box/azure-asset-transfer-box/master/media/1a14a6336d8a8b1adfe5c3689ab954b2.png)
 
 The following state transition diagram articulates the possible flows, and the
 various transition functions at each state. Each user is only allowed to take
@@ -74,6 +74,4 @@ forward and ultimately complete the transaction.
 Application Files
 -----------------
 
-[AssetTransfer.json](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/AssetTransfer.json)
-
-[AssetTranfer.sol](https://raw.githubusercontent.com/caleteeter/asset-transfer/master/contracts/AssetTransfer.sol)
+[AssetTranfer.sol](https://raw.githubusercontent.com/truffle-box/azure-asset-transfer-box/master/contracts/AssetTransfer.sol)
